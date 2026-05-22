@@ -1,0 +1,11 @@
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\bin\Debug\net10.0\InventorySalesApi.Domain.deps.json
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\bin\Debug\net10.0\InventorySalesApi.Domain.dll
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\bin\Debug\net10.0\InventorySalesApi.Domain.pdb
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\InventorySalesApi.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\InventorySalesApi.Domain.AssemblyInfoInputs.cache
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\InventorySalesApi.Domain.AssemblyInfo.cs
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\InventorySalesApi.Domain.csproj.CoreCompileInputs.cache
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\InventorySalesApi.Domain.dll
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\refint\InventorySalesApi.Domain.dll
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\InventorySalesApi.Domain.pdb
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\ref\InventorySalesApi.Domain.dll

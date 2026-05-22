@@ -1,0 +1,15 @@
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\InventorySalesApi.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\InventorySalesApi.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\InventorySalesApi.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\InventorySalesApi.Infrastructure.AssemblyInfo.cs
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\InventorySalesApi.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\bin\Debug\net10.0\InventorySalesApi.Infrastructure.deps.json
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\bin\Debug\net10.0\InventorySalesApi.Infrastructure.dll
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\bin\Debug\net10.0\InventorySalesApi.Infrastructure.pdb
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\bin\Debug\net10.0\InventorySalesApi.Domain.dll
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\bin\Debug\net10.0\InventorySalesApi.Domain.pdb
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\Inventor.7374411D.Up2Date
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\InventorySalesApi.Infrastructure.dll
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\refint\InventorySalesApi.Infrastructure.dll
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\InventorySalesApi.Infrastructure.pdb
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\ref\InventorySalesApi.Infrastructure.dll
