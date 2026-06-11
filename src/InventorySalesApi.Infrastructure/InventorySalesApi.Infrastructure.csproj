@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InventorySalesApi.Domain\InventorySalesApi.Domain.csproj" />
+    <ProjectReference Include="..\InventorySalesApi.Application\InventorySalesApi.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

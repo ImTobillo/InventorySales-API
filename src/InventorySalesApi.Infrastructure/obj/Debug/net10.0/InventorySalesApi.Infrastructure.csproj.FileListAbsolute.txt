@@ -13,3 +13,6 @@ C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.I
 C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\refint\InventorySalesApi.Infrastructure.dll
 C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\InventorySalesApi.Infrastructure.pdb
 C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\ref\InventorySalesApi.Infrastructure.dll
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\obj\Debug\net10.0\InventorySalesApi.Infrastructure.sourcelink.json
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\bin\Debug\net10.0\InventorySalesApi.Application.dll
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Infrastructure\bin\Debug\net10.0\InventorySalesApi.Application.pdb

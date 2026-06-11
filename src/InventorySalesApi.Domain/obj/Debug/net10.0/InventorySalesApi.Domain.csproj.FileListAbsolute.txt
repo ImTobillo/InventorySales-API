@@ -9,3 +9,4 @@ C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.D
 C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\refint\InventorySalesApi.Domain.dll
 C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\InventorySalesApi.Domain.pdb
 C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\ref\InventorySalesApi.Domain.dll
+C:\Users\-\.gemini\antigravity\scratch\InventorySalesApi\src\InventorySalesApi.Domain\obj\Debug\net10.0\InventorySalesApi.Domain.sourcelink.json
