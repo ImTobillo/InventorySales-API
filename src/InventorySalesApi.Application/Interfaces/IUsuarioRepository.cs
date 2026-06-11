@@ -12,6 +12,7 @@ namespace InventorySalesApi.Application.Interfaces;
 public interface IUsuarioRepository
 {
     Task<Usuario?> ObtenerPorIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Usuario?> ObtenerPorNombreUsuarioAsync(string nombreUsuario, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Usuario>> ObtenerTodosAsync(CancellationToken cancellationToken = default);
     Task AgregarAsync(Usuario usuario, CancellationToken cancellationToken = default);
 }
