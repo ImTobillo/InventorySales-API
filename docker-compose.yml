@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver_db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Your_Strong_Password_123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+  api:
+    image: inventorysalesapi-api
+    container_name: inventorysalesapi_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=InventorySalesDb;User Id=sa;Password=Your_Strong_Password_123!;TrustServerCertificate=True;
+      - JwtSettings__Secret=SuperSecretKeyForInventorySalesApiProjectMustBeAtLeast32BytesLong!
+      - JwtSettings__Issuer=InventorySalesApi
+      - JwtSettings__Audience=InventorySalesApi.Users
+      - JwtSettings__ExpiryInMinutes=60
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - sqlserver
+
+volumes:
+  mssql_data:

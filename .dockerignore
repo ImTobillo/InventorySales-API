@@ -1,0 +1,12 @@
+**/*.bin
+**/*.obj
+**/bin
+**/obj
+**/.vs
+**/.git
+**/.vscode
+**/.idea
+**/*.user
+**/*.suo
+**/*.db
+**/*.log

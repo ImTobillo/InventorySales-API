@@ -22,6 +22,11 @@ public class UsuarioRepository : IUsuarioRepository
         return await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
+    public async Task<Usuario?> ObtenerPorNombreUsuarioAsync(string nombreUsuario, CancellationToken cancellationToken = default)
+    {
+        return await _context.Usuarios.FirstOrDefaultAsync(u => u.NombreUsuario == nombreUsuario.ToLower(), cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Usuario>> ObtenerTodosAsync(CancellationToken cancellationToken = default)
     {
         var list = await _context.Usuarios.ToListAsync(cancellationToken);
