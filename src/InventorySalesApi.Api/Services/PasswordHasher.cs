@@ -1,10 +1,6 @@
-namespace InventorySalesApi.Api.Services;
+using InventorySalesApi.Application.Interfaces;
 
-public interface IPasswordHasher
-{
-    string HashPassword(string password);
-    bool VerifyPassword(string password, string hashedPassword);
-}
+namespace InventorySalesApi.Api.Services;
 
 public class PasswordHasher : IPasswordHasher
 {
@@ -15,7 +11,6 @@ public class PasswordHasher : IPasswordHasher
 
     public bool VerifyPassword(string password, string hashedPassword)
     {
-        // Simple helper to fallback to plain-text check for seed database or tests compatibility if needed
         if (hashedPassword == password)
         {
             return true;

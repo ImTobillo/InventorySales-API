@@ -1,0 +1,6 @@
+{
+  "InventorySalesApi.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Users\\-\\.gemini\\antigravity\\scratch\\InventorySalesApi\\src\\InventorySalesApi.Api",
+  "InventorySalesApi.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Users\\-\\.gemini\\antigravity\\scratch\\InventorySalesApi\\src\\InventorySalesApi.Application",
+  "InventorySalesApi.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Users\\-\\.gemini\\antigravity\\scratch\\InventorySalesApi\\src\\InventorySalesApi.Domain",
+  "InventorySalesApi.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Users\\-\\.gemini\\antigravity\\scratch\\InventorySalesApi\\src\\InventorySalesApi.Infrastructure"
+}

@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NSubstitute;
+using Moq;
 using Xunit;
 using InventorySalesApi.Application.Features.Stock.Commands;
 using InventorySalesApi.Application.Features.Stock.Handlers;
@@ -17,17 +17,21 @@ namespace InventorySalesApi.UnitTests;
 
 public class RegistrarEntradaStockTest
 {
-    private readonly IProductoRepository _productoRepository;
-    private readonly IUsuarioRepository _usuarioRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly Mock<IProductoRepository> _productoRepositoryMock;
+    private readonly Mock<IUsuarioRepository> _usuarioRepositoryMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly RegistrarEntradaStockCommandHandler _handler;
 
     public RegistrarEntradaStockTest()
     {
-        _productoRepository = Substitute.For<IProductoRepository>();
-        _usuarioRepository = Substitute.For<IUsuarioRepository>();
-        _unitOfWork = Substitute.For<IUnitOfWork>();
-        _handler = new RegistrarEntradaStockCommandHandler(_productoRepository, _usuarioRepository, _unitOfWork);
+        _productoRepositoryMock = new Mock<IProductoRepository>();
+        _usuarioRepositoryMock = new Mock<IUsuarioRepository>();
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _handler = new RegistrarEntradaStockCommandHandler(
+            _productoRepositoryMock.Object,
+            _usuarioRepositoryMock.Object,
+            _unitOfWorkMock.Object
+        );
     }
 
     [Fact]
@@ -42,8 +46,12 @@ public class RegistrarEntradaStockTest
         var usuario = new Usuario("operador1", new Email("operador@example.com"), "hash", RolUsuario.Almacenero);
         usuario.RegistrarCreacion("admin");
 
-        _productoRepository.ObtenerPorIdAsync(productoId, Arg.Any<CancellationToken>()).Returns(producto);
-        _usuarioRepository.ObtenerPorIdAsync(usuarioId, Arg.Any<CancellationToken>()).Returns(usuario);
+        _productoRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(productoId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(producto);
+        _usuarioRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(usuarioId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(usuario);
 
         var command = new RegistrarEntradaStockCommand(productoId, 5, "Compra a proveedor", usuarioId);
 
@@ -53,18 +61,20 @@ public class RegistrarEntradaStockTest
         // Assert
         result.Should().Be(Unit.Value);
         producto.Stock.Should().Be(25); // 20 + 5 = 25
-        _productoRepository.Received(1).Actualizar(producto);
-        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+        _productoRepositoryMock.Verify(r => r.Actualizar(producto), Times.Once);
+        _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task Handle_ProductoNoExiste_DebeLanzarDomainException()
+    public async Task Handle_ProductoNoExiste_DebeLanzarNotFoundException()
     {
         // Arrange
         var productoId = Guid.NewGuid();
         var usuarioId = Guid.NewGuid();
 
-        _productoRepository.ObtenerPorIdAsync(productoId, Arg.Any<CancellationToken>()).Returns((Producto)null!);
+        _productoRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(productoId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Producto)null!);
 
         var command = new RegistrarEntradaStockCommand(productoId, 5, "Compra a proveedor", usuarioId);
 
@@ -72,10 +82,10 @@ public class RegistrarEntradaStockTest
         Func<Task> act = async () => await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<DomainException>()
+        await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage($"El producto con ID {productoId} no existe.");
 
-        _productoRepository.DidNotReceive().Actualizar(Arg.Any<Producto>());
-        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+        _productoRepositoryMock.Verify(r => r.Actualizar(It.IsAny<Producto>()), Times.Never);
+        _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

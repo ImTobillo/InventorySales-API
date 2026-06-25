@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using InventorySalesApi.Application.Interfaces;
 using InventorySalesApi.Api.Services;
 using InventorySalesApi.Domain.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace InventorySalesApi.Api.Controllers;
 
@@ -21,15 +22,18 @@ public class AuthController : ControllerBase
     private readonly IUsuarioRepository _usuarioRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthController> _logger;
 
     public AuthController(
         IUsuarioRepository usuarioRepository,
         IPasswordHasher passwordHasher,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ILogger<AuthController> logger)
     {
         _usuarioRepository = usuarioRepository;
         _passwordHasher = passwordHasher;
         _configuration = configuration;
+        _logger = logger;
     }
 
     [HttpPost("login")]
@@ -37,18 +41,21 @@ public class AuthController : ControllerBase
     {
         if (request == null || string.IsNullOrWhiteSpace(request.NombreUsuario) || string.IsNullOrWhiteSpace(request.Password))
         {
+            _logger.LogWarning("Intento de inicio de sesión fallido: solicitud vacía o incompleta.");
             return BadRequest("Nombre de usuario y contraseña son requeridos.");
         }
 
         var usuario = await _usuarioRepository.ObtenerPorNombreUsuarioAsync(request.NombreUsuario, cancellationToken);
         if (usuario == null || !usuario.Activo)
         {
+            _logger.LogWarning("Intento de inicio de sesión fallido para el usuario '{NombreUsuario}': no encontrado o inactivo.", request.NombreUsuario);
             return Unauthorized("Credenciales inválidas o usuario inactivo.");
         }
 
         var passwordValido = _passwordHasher.VerifyPassword(request.Password, usuario.PasswordHash);
         if (!passwordValido)
         {
+            _logger.LogWarning("Intento de inicio de sesión fallido para el usuario '{NombreUsuario}': contraseña incorrecta.", request.NombreUsuario);
             return Unauthorized("Credenciales inválidas.");
         }
 
@@ -82,6 +89,8 @@ public class AuthController : ControllerBase
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var tokenString = tokenHandler.WriteToken(token);
+
+        _logger.LogInformation("Usuario '{NombreUsuario}' inició sesión correctamente. Rol asignado: {Rol}.", usuario.NombreUsuario, roleClaim);
 
         return Ok(new LoginResponse(
             usuario.Id,

@@ -25,7 +25,7 @@ public class EliminarProductoCommandHandler : IRequestHandler<EliminarProductoCo
         var producto = await _productoRepository.ObtenerPorIdAsync(request.Id, cancellationToken);
         if (producto == null)
         {
-            throw new DomainException($"El producto con ID {request.Id} no existe y no puede ser eliminado.");
+            throw new NotFoundException($"El producto con ID {request.Id} no existe y no puede ser eliminado.");
         }
 
         // 2. Eliminar de la persistencia

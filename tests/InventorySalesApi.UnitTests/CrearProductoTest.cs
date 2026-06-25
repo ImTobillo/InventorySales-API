@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NSubstitute;
+using Moq;
 using Xunit;
 using InventorySalesApi.Application.Features.Productos.Commands;
 using InventorySalesApi.Application.Features.Productos.Handlers;
@@ -14,17 +14,21 @@ namespace InventorySalesApi.UnitTests;
 
 public class CrearProductoTest
 {
-    private readonly IProductoRepository _productoRepository;
-    private readonly ICategoriaRepository _categoriaRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly Mock<IProductoRepository> _productoRepositoryMock;
+    private readonly Mock<ICategoriaRepository> _categoriaRepositoryMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly CrearProductoCommandHandler _handler;
 
     public CrearProductoTest()
     {
-        _productoRepository = Substitute.For<IProductoRepository>();
-        _categoriaRepository = Substitute.For<ICategoriaRepository>();
-        _unitOfWork = Substitute.For<IUnitOfWork>();
-        _handler = new CrearProductoCommandHandler(_productoRepository, _categoriaRepository, _unitOfWork);
+        _productoRepositoryMock = new Mock<IProductoRepository>();
+        _categoriaRepositoryMock = new Mock<ICategoriaRepository>();
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _handler = new CrearProductoCommandHandler(
+            _productoRepositoryMock.Object, 
+            _categoriaRepositoryMock.Object, 
+            _unitOfWorkMock.Object
+        );
     }
 
     [Fact]
@@ -34,11 +38,13 @@ public class CrearProductoTest
         var categoriaId = Guid.NewGuid();
         var categoria = new Categoria("Electrodomésticos", "Descripción electro");
         
-        _categoriaRepository.ObtenerPorIdAsync(categoriaId, Arg.Any<CancellationToken>())
-            .Returns(categoria);
+        _categoriaRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(categoriaId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(categoria);
             
-        _productoRepository.ObtenerPorSkuAsync("NOTE-ASUS-UX340", Arg.Any<CancellationToken>())
-            .Returns((Producto)null!);
+        _productoRepositoryMock
+            .Setup(r => r.ObtenerPorSkuAsync("NOTE-ASUS-UX340", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Producto)null!);
 
         var command = new CrearProductoCommand(
             Sku: "NOTE-ASUS-UX340",
@@ -54,17 +60,21 @@ public class CrearProductoTest
 
         // Assert
         result.Should().NotBeEmpty();
-        await _productoRepository.Received(1).AgregarAsync(Arg.Is<Producto>(p => p.Sku == command.Sku && p.Nombre == command.Nombre), Arg.Any<CancellationToken>());
-        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+        _productoRepositoryMock.Verify(
+            r => r.AgregarAsync(It.Is<Producto>(p => p.Sku == command.Sku && p.Nombre == command.Nombre), It.IsAny<CancellationToken>()),
+            Times.Once
+        );
+        _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task Handle_CategoriaNoExiste_DebeLanzarDomainException()
+    public async Task Handle_CategoriaNoExiste_DebeLanzarNotFoundException()
     {
         // Arrange
         var categoriaId = Guid.NewGuid();
-        _categoriaRepository.ObtenerPorIdAsync(categoriaId, Arg.Any<CancellationToken>())
-            .Returns((Categoria)null!);
+        _categoriaRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(categoriaId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Categoria)null!);
 
         var command = new CrearProductoCommand(
             Sku: "NOTE-ASUS-UX340",
@@ -79,11 +89,14 @@ public class CrearProductoTest
         Func<Task> act = async () => await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<DomainException>()
+        await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage($"La categoría especificada con ID {categoriaId} no existe.");
             
-        await _productoRepository.DidNotReceive().AgregarAsync(Arg.Any<Producto>(), Arg.Any<CancellationToken>());
-        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+        _productoRepositoryMock.Verify(
+            r => r.AgregarAsync(It.IsAny<Producto>(), It.IsAny<CancellationToken>()),
+            Times.Never
+        );
+        _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -94,11 +107,13 @@ public class CrearProductoTest
         var categoria = new Categoria("Electrodomésticos", "Descripción");
         var productoExistente = new Producto("NOTE-ASUS-UX340", "Notebook ASUS", "Desc", new Domain.ValueObjects.Money(100), 5, categoriaId);
 
-        _categoriaRepository.ObtenerPorIdAsync(categoriaId, Arg.Any<CancellationToken>())
-            .Returns(categoria);
+        _categoriaRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(categoriaId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(categoria);
             
-        _productoRepository.ObtenerPorSkuAsync("NOTE-ASUS-UX340", Arg.Any<CancellationToken>())
-            .Returns(productoExistente);
+        _productoRepositoryMock
+            .Setup(r => r.ObtenerPorSkuAsync("NOTE-ASUS-UX340", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(productoExistente);
 
         var command = new CrearProductoCommand(
             Sku: "NOTE-ASUS-UX340",
@@ -116,7 +131,10 @@ public class CrearProductoTest
         await act.Should().ThrowAsync<DomainException>()
             .WithMessage("El SKU 'NOTE-ASUS-UX340' ya está registrado para otro producto.");
             
-        await _productoRepository.DidNotReceive().AgregarAsync(Arg.Any<Producto>(), Arg.Any<CancellationToken>());
-        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+        _productoRepositoryMock.Verify(
+            r => r.AgregarAsync(It.IsAny<Producto>(), It.IsAny<CancellationToken>()),
+            Times.Never
+        );
+        _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

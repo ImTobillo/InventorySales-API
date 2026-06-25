@@ -30,14 +30,14 @@ public class CancelarVentaCommandHandler : IRequestHandler<CancelarVentaCommand,
         var venta = await _ventaRepository.ObtenerPorIdAsync(request.VentaId, cancellationToken);
         if (venta == null)
         {
-            throw new DomainException($"La venta con ID {request.VentaId} no existe.");
+            throw new NotFoundException($"La venta con ID {request.VentaId} no existe.");
         }
 
         // 2. Validar usuario cancelador
         var usuario = await _usuarioRepository.ObtenerPorIdAsync(request.UsuarioId, cancellationToken);
         if (usuario == null)
         {
-            throw new DomainException($"El usuario con ID {request.UsuarioId} no existe.");
+            throw new NotFoundException($"El usuario con ID {request.UsuarioId} no existe.");
         }
 
         // 3. Ejecutar cancelación en el modelo de dominio (devolución automática de stock)

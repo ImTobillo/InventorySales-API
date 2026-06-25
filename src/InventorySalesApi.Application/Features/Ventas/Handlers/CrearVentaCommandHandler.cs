@@ -37,7 +37,7 @@ public class CrearVentaCommandHandler : IRequestHandler<CrearVentaCommand, Guid>
         var cliente = await _clienteRepository.ObtenerPorIdAsync(request.ClienteId, cancellationToken);
         if (cliente == null)
         {
-            throw new DomainException($"El cliente con ID {request.ClienteId} no existe.");
+            throw new NotFoundException($"El cliente con ID {request.ClienteId} no existe.");
         }
         if (!cliente.Activo)
         {
@@ -48,7 +48,7 @@ public class CrearVentaCommandHandler : IRequestHandler<CrearVentaCommand, Guid>
         var usuario = await _usuarioRepository.ObtenerPorIdAsync(request.UsuarioId, cancellationToken);
         if (usuario == null)
         {
-            throw new DomainException($"El usuario vendedor con ID {request.UsuarioId} no existe.");
+            throw new NotFoundException($"El usuario vendedor con ID {request.UsuarioId} no existe.");
         }
         if (!usuario.Activo)
         {
@@ -65,7 +65,7 @@ public class CrearVentaCommandHandler : IRequestHandler<CrearVentaCommand, Guid>
             var producto = await _productoRepository.ObtenerPorIdAsync(item.ProductoId, cancellationToken);
             if (producto == null)
             {
-                throw new DomainException($"El producto con ID {item.ProductoId} no existe.");
+                throw new NotFoundException($"El producto con ID {item.ProductoId} no existe.");
             }
 
             venta.AgregarDetalle(producto, item.Cantidad, item.Descuento, request.UsuarioId);

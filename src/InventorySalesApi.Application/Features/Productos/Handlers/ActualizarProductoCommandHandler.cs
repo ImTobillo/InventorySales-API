@@ -31,14 +31,14 @@ public class ActualizarProductoCommandHandler : IRequestHandler<ActualizarProduc
         var producto = await _productoRepository.ObtenerPorIdAsync(request.Id, cancellationToken);
         if (producto == null)
         {
-            throw new DomainException($"El producto con ID {request.Id} no existe.");
+            throw new NotFoundException($"El producto con ID {request.Id} no existe.");
         }
 
         // 2. Validar existencia de la categoría nueva
         var categoria = await _categoriaRepository.ObtenerPorIdAsync(request.CategoriaId, cancellationToken);
         if (categoria == null)
         {
-            throw new DomainException($"La categoría especificada con ID {request.CategoriaId} no existe.");
+            throw new NotFoundException($"La categoría especificada con ID {request.CategoriaId} no existe.");
         }
 
         // 3. Ejecutar actualización sobre el modelo de dominio

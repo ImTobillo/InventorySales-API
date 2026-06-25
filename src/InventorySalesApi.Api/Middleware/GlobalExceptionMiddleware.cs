@@ -50,8 +50,9 @@ public class GlobalExceptionMiddleware
             case ValidationException validationException:
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 problemDetails.Status = (int)HttpStatusCode.BadRequest;
-                problemDetails.Title = "Validation Error";
-                problemDetails.Detail = "One or more validation failures occurred.";
+                problemDetails.Title = "Error de Validación";
+                problemDetails.Detail = "Uno o más errores de validación ocurrieron.";
+                problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
                 
                 var validationErrors = new Dictionary<string, string[]>();
                 var groups = validationException.Errors
@@ -65,25 +66,44 @@ public class GlobalExceptionMiddleware
                 problemDetails.Extensions["errors"] = validationErrors;
                 break;
 
-            case DomainException domainException:
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                problemDetails.Status = (int)HttpStatusCode.BadRequest;
-                problemDetails.Title = "Domain Rule Violation";
-                problemDetails.Detail = domainException.Message;
+            case NotFoundException notFoundException:
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                problemDetails.Status = (int)HttpStatusCode.NotFound;
+                problemDetails.Title = "Recurso no Encontrado";
+                problemDetails.Detail = notFoundException.Message;
+                problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4";
                 break;
 
             case KeyNotFoundException keyNotFoundException:
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 problemDetails.Status = (int)HttpStatusCode.NotFound;
-                problemDetails.Title = "Resource Not Found";
+                problemDetails.Title = "Recurso no Encontrado";
                 problemDetails.Detail = keyNotFoundException.Message;
+                problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4";
+                break;
+
+            case DomainException domainException:
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                problemDetails.Status = (int)HttpStatusCode.BadRequest;
+                problemDetails.Title = "Violación de Regla de Negocio";
+                problemDetails.Detail = domainException.Message;
+                problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
+                break;
+
+            case UnauthorizedAccessException unauthorizedAccessException:
+                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                problemDetails.Status = (int)HttpStatusCode.Unauthorized;
+                problemDetails.Title = "No Autorizado";
+                problemDetails.Detail = unauthorizedAccessException.Message;
+                problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3";
                 break;
 
             default:
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 problemDetails.Status = (int)HttpStatusCode.InternalServerError;
-                problemDetails.Title = "Internal Server Error";
-                problemDetails.Detail = "An unexpected error occurred. Please contact administration.";
+                problemDetails.Title = "Error Interno del Servidor";
+                problemDetails.Detail = "Ocurrió un error inesperado en el servidor. Por favor, intente más tarde.";
+                problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1";
                 break;
         }
 

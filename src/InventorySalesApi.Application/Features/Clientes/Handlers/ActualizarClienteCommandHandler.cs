@@ -26,7 +26,7 @@ public class ActualizarClienteCommandHandler : IRequestHandler<ActualizarCliente
         var cliente = await _clienteRepository.ObtenerPorIdAsync(request.Id, cancellationToken);
         if (cliente == null)
         {
-            throw new DomainException($"El cliente con ID {request.Id} no existe.");
+            throw new NotFoundException($"El cliente con ID {request.Id} no existe.");
         }
 
         // 2. Validar Email único (excluyendo a sí mismo)

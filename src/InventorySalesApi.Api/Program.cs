@@ -9,12 +9,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using MediatR;
 using FluentValidation;
 using Asp.Versioning;
 using InventorySalesApi.Application.DependencyInjection;
+using InventorySalesApi.Application.Interfaces;
 using InventorySalesApi.Infrastructure;
+using Serilog;
 using Infrastructure.Persistence;
 using InventorySalesApi.Api.Middleware;
 using InventorySalesApi.Api.PipelineBehaviors;
@@ -24,6 +26,16 @@ using InventorySalesApi.Domain.ValueObjects;
 using InventorySalesApi.Domain.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configurar Serilog para logs estructurados y rolling files en Logs/
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -42,6 +54,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Register Application & Infrastructure Services
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
+
+// Register Health Checks
+builder.Services.AddHealthChecks()
+    .AddCheck<DbHealthCheck>("database");
 
 // Register Password Hasher
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
@@ -114,23 +130,16 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Introduzca 'Bearer' [espacio] y luego su token JWT.\n\nEjemplo: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\""
     });
     
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
     });
 });
 
 var app = builder.Build();
+
+// Auditoría de requests HTTP mediante Serilog
+app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 app.UseMiddleware<GlobalExceptionMiddleware>();
@@ -149,6 +158,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 // Database Seeding and Initialization
 using (var scope = app.Services.CreateScope())
@@ -159,58 +169,8 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<AppDbContext>();
         var passwordHasher = services.GetRequiredService<IPasswordHasher>();
 
-        // Ensure database is created
-        context.Database.EnsureCreated();
-
-        // Seed Categorías if empty
-        if (!context.Categorias.Any())
-        {
-            var catElectro = new Categoria("Electrodomésticos", "Dispositivos electrónicos del hogar");
-            catElectro.RegistrarCreacion("Semilla");
-            await context.Categorias.AddAsync(catElectro);
-
-            var catAlimentos = new Categoria("Alimentos", "Productos alimenticios y consumibles");
-            catAlimentos.RegistrarCreacion("Semilla");
-            await context.Categorias.AddAsync(catAlimentos);
-
-            await context.SaveChangesAsync();
-        }
-
-        // Seed Usuarios if empty
-        if (!context.Usuarios.Any())
-        {
-            // Seed Admin User
-            var adminUser = new Usuario(
-                "admin", 
-                new Email("admin@sistema.com"), 
-                passwordHasher.HashPassword("AdminPassword123!"), 
-                RolUsuario.Administrador
-            );
-            adminUser.RegistrarCreacion("Semilla");
-            await context.Usuarios.AddAsync(adminUser);
-
-            // Seed Vendedor User
-            var vendedorUser = new Usuario(
-                "vendedor", 
-                new Email("vendedor@sistema.com"), 
-                passwordHasher.HashPassword("VendedorPassword123!"), 
-                RolUsuario.Vendedor
-            );
-            vendedorUser.RegistrarCreacion("Semilla");
-            await context.Usuarios.AddAsync(vendedorUser);
-
-            // Seed Operador User (Almacenero)
-            var operadorUser = new Usuario(
-                "operador", 
-                new Email("operador@sistema.com"), 
-                passwordHasher.HashPassword("OperadorPassword123!"), 
-                RolUsuario.Almacenero
-            );
-            operadorUser.RegistrarCreacion("Semilla");
-            await context.Usuarios.AddAsync(operadorUser);
-
-            await context.SaveChangesAsync();
-        }
+        // Ejecutar inicialización y sembrado de la base de datos
+        await DbInitializer.SeedAsync(context, passwordHasher);
     }
     catch (Exception ex)
     {

@@ -30,14 +30,14 @@ public class RegistrarEntradaStockCommandHandler : IRequestHandler<RegistrarEntr
         var producto = await _productoRepository.ObtenerPorIdAsync(request.ProductoId, cancellationToken);
         if (producto == null)
         {
-            throw new DomainException($"El producto con ID {request.ProductoId} no existe.");
+            throw new NotFoundException($"El producto con ID {request.ProductoId} no existe.");
         }
 
         // 2. Validar usuario
         var usuario = await _usuarioRepository.ObtenerPorIdAsync(request.UsuarioId, cancellationToken);
         if (usuario == null)
         {
-            throw new DomainException($"El usuario con ID {request.UsuarioId} no existe.");
+            throw new NotFoundException($"El usuario con ID {request.UsuarioId} no existe.");
         }
 
         // 3. Registrar movimiento en la entidad Producto (ejecuta validación interna del dominio y actualiza stock)

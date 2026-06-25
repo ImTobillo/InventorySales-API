@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NSubstitute;
+using Moq;
 using Xunit;
 using InventorySalesApi.Application.Features.Ventas.Commands;
 using InventorySalesApi.Application.Features.Ventas.Handlers;
@@ -17,26 +17,26 @@ namespace InventorySalesApi.UnitTests;
 
 public class CrearVentaTest
 {
-    private readonly IVentaRepository _ventaRepository;
-    private readonly IClienteRepository _clienteRepository;
-    private readonly IProductoRepository _productoRepository;
-    private readonly IUsuarioRepository _usuarioRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly Mock<IVentaRepository> _ventaRepositoryMock;
+    private readonly Mock<IClienteRepository> _clienteRepositoryMock;
+    private readonly Mock<IProductoRepository> _productoRepositoryMock;
+    private readonly Mock<IUsuarioRepository> _usuarioRepositoryMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly CrearVentaCommandHandler _handler;
 
     public CrearVentaTest()
     {
-        _ventaRepository = Substitute.For<IVentaRepository>();
-        _clienteRepository = Substitute.For<IClienteRepository>();
-        _productoRepository = Substitute.For<IProductoRepository>();
-        _usuarioRepository = Substitute.For<IUsuarioRepository>();
-        _unitOfWork = Substitute.For<IUnitOfWork>();
+        _ventaRepositoryMock = new Mock<IVentaRepository>();
+        _clienteRepositoryMock = new Mock<IClienteRepository>();
+        _productoRepositoryMock = new Mock<IProductoRepository>();
+        _usuarioRepositoryMock = new Mock<IUsuarioRepository>();
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
         _handler = new CrearVentaCommandHandler(
-            _ventaRepository,
-            _clienteRepository,
-            _productoRepository,
-            _usuarioRepository,
-            _unitOfWork
+            _ventaRepositoryMock.Object,
+            _clienteRepositoryMock.Object,
+            _productoRepositoryMock.Object,
+            _usuarioRepositoryMock.Object,
+            _unitOfWorkMock.Object
         );
     }
 
@@ -56,9 +56,15 @@ public class CrearVentaTest
         var producto = new Producto("PROD-1", "Teclado Mecánico", "RGB", new Money(50.00m), 20, Guid.NewGuid());
         producto.RegistrarCreacion("admin");
 
-        _clienteRepository.ObtenerPorIdAsync(clienteId, Arg.Any<CancellationToken>()).Returns(cliente);
-        _usuarioRepository.ObtenerPorIdAsync(usuarioId, Arg.Any<CancellationToken>()).Returns(usuario);
-        _productoRepository.ObtenerPorIdAsync(productoId, Arg.Any<CancellationToken>()).Returns(producto);
+        _clienteRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(clienteId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(cliente);
+        _usuarioRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(usuarioId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(usuario);
+        _productoRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(productoId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(producto);
 
         var detalles = new List<CrearDetalleVentaDto>
         {
@@ -72,8 +78,8 @@ public class CrearVentaTest
         // Assert
         result.Should().NotBeEmpty();
         producto.Stock.Should().Be(18); // 20 - 2 = 18
-        await _ventaRepository.Received(1).AgregarAsync(Arg.Any<Venta>(), Arg.Any<CancellationToken>());
-        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+        _ventaRepositoryMock.Verify(r => r.AgregarAsync(It.IsAny<Venta>(), It.IsAny<CancellationToken>()), Times.Once);
+        _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -89,9 +95,15 @@ public class CrearVentaTest
         var productoId = Guid.NewGuid();
         var producto = new Producto("PROD-1", "Teclado Mecánico", "RGB", new Money(50.00m), 1, Guid.NewGuid()); // stock es 1
 
-        _clienteRepository.ObtenerPorIdAsync(clienteId, Arg.Any<CancellationToken>()).Returns(cliente);
-        _usuarioRepository.ObtenerPorIdAsync(usuarioId, Arg.Any<CancellationToken>()).Returns(usuario);
-        _productoRepository.ObtenerPorIdAsync(productoId, Arg.Any<CancellationToken>()).Returns(producto);
+        _clienteRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(clienteId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(cliente);
+        _usuarioRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(usuarioId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(usuario);
+        _productoRepositoryMock
+            .Setup(r => r.ObtenerPorIdAsync(productoId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(producto);
 
         var detalles = new List<CrearDetalleVentaDto>
         {
@@ -106,7 +118,7 @@ public class CrearVentaTest
         await act.Should().ThrowAsync<DomainException>()
             .WithMessage("*Stock insuficiente*");
         
-        await _ventaRepository.DidNotReceive().AgregarAsync(Arg.Any<Venta>(), Arg.Any<CancellationToken>());
-        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+        _ventaRepositoryMock.Verify(r => r.AgregarAsync(It.IsAny<Venta>(), It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }
