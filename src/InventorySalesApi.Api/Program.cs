@@ -39,17 +39,26 @@ builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddProblemDetails();
 
-// Configure DB Context with SQL Server (Enable Retry on Failure for Docker initialization)
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlServerOptionsAction: sqlOptions =>
-        {
-            sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 10,
-                maxRetryDelay: TimeSpan.FromSeconds(5),
-                errorNumbersToAdd: null);
-        }));
+// Configure DB Context with SQL Server or In-Memory (for Integration testing)
+if (builder.Configuration.GetValue<bool>("UseInMemoryDatabase"))
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseInMemoryDatabase("InventorySalesDb"));
+}
+else
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+            sqlServerOptionsAction: sqlOptions =>
+            {
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 10,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorNumbersToAdd: null);
+            }));
+}
 
 // Register Application & Infrastructure Services
 builder.Services.AddApplicationServices();
@@ -180,3 +189,5 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+public partial class Program { }

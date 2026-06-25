@@ -107,7 +107,10 @@ public class GlobalExceptionMiddleware
                 break;
         }
 
-        var result = JsonSerializer.Serialize(problemDetails);
+        var result = JsonSerializer.Serialize(problemDetails, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
         await context.Response.WriteAsync(result);
     }
 }

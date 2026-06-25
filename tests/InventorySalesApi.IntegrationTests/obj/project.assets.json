@@ -2046,6 +2046,7 @@
           "InventorySalesApi.Infrastructure": "1.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.9",
           "Microsoft.AspNetCore.OpenApi": "10.0.5",
+          "Microsoft.EntityFrameworkCore.InMemory": "10.0.9",
           "Serilog.AspNetCore": "9.0.0",
           "Swashbuckle.AspNetCore": "10.2.1",
           "System.IdentityModel.Tokens.Jwt": "8.19.1"
